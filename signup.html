@@ -2,170 +2,127 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إنشاء حساب جديد - RACHEEL</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* تصميم النافذة المنبثقة */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1A2A5A, #3D5FA8);
+      color: #fff;
+      display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
       text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: green;
-      animation: fadeIn 1s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: scale(0.8);}
-      to {opacity: 1; transform: scale(1);}
+    .logo {
+      width: 100px;
+      margin-bottom: 15px;
     }
-    .close-btn {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #1A2A5A;
-      color: #fff;
+    h1 {
+      margin: 10px 0;
+    }
+    p {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      width: 95%;
+      padding: 12px;
+      background: #FFD700;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      color: #1A2A5A;
     }
-    .close-btn:hover {
-      background: #2C4C8A;
+    button:hover {
+      background: #FFC107;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="left">
-      <img src="images/logo.jpeg" alt="شعار RACHEEL" class="logo">
-      <h1 id="title">RACHEEL</h1>
-      <p id="subtitle">YOUR PERMANENT EXHIBITION</p>
-      <div class="teasers">
-        <p id="teaser1"></p>
-        <p id="teaser2"></p>
-        <p id="teaser3"></p>
-        <p id="teaser4"></p>
-        <p id="teaser5"></p>
-      </div>
-    </div>
+    <img src="images/logo.jpeg" alt="شعار RACHEEL" class="logo">
+    <h1>RACHEEL</h1>
+    <p>معرضك الدائم – شارك إبداعك مع العالم</p>
 
-    <div class="right">
-      <form class="login-box" onsubmit="return showSuccessMessage(event)">
-        <input type="text" id="fullname" placeholder="Full Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="email" id="confirmEmail" placeholder="Confirm Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="password" id="confirm" placeholder="Confirm Password" required>
-        <button type="submit" id="signup-btn" class="signup-btn">Create New Account</button>
-      </form>
-    </div>
+    <form onsubmit="registerUser(event)">
+      <input type="email" id="email" placeholder="البريد الإلكتروني" required><br>
+      <input type="email" id="confirmEmail" placeholder="تأكيد البريد الإلكتروني" required><br>
+      <input type="password" id="password" placeholder="كلمة المرور" required><br>
+      <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور" required><br>
+      <button type="submit">إنشاء حساب</button>
+    </form>
   </div>
 
-  <!-- نافذة منبثقة -->
-  <div id="successModal" class="modal">
-    <div class="modal-content">
-      <p id="success-message"></p>
-      <button class="close-btn" onclick="closeModal()">OK</button>
-    </div>
-  </div>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
 
-  <footer>
-    <p>© 2026 RACHEEL - جميع الحقوق محفوظة</p>
-  </footer>
-
-  <!-- سكربت داخلي -->
   <script>
-    const translations = {
-      ar: {
-        subtitle: "معرضك الدائم",
-        teaser1: "ابدأ رحلتك معنا اليوم، واجعل منتجاتك في معرض دائم يراها الجميع!",
-        teaser2: "RACHEEL… منصتك لتتحول أفكارك الصغيرة إلى نجاحات كبيرة.",
-        teaser3: "انضم الآن واكتشف كيف يمكن لمعرضك الرقمي أن يجذب عملاء من كل مكان.",
-        teaser4: "مع RACHEEL، كل ورشة لها صوت، وكل منتج له جمهور.",
-        teaser5: "لا تدع إبداعك يضيع… شاركه مع العالم عبر معرضك الدائم.",
-        fullname: "الاسم الكامل",
-        email: "البريد الإلكتروني",
-        confirmEmail: "تأكيد البريد الإلكتروني",
-        password: "كلمة المرور",
-        confirm: "تأكيد كلمة المرور",
-        signupBtn: "إنشاء حساب جديد",
-        success: "تم إنشاء حسابك بنجاح، مرحبًا بك في RACHEEL!"
-      },
-      en: {
-        subtitle: "YOUR PERMANENT EXHIBITION",
-        teaser1: "Start your journey today and showcase your products permanently!",
-        teaser2: "RACHEEL… your platform to turn small ideas into big successes.",
-        teaser3: "Join now and discover how your digital exhibition can attract customers everywhere.",
-        teaser4: "With RACHEEL, every workshop has a voice, every product has an audience.",
-        teaser5: "Don’t let your creativity fade… share it with the world.",
-        fullname: "Full Name",
-        email: "Email",
-        confirmEmail: "Confirm Email",
-        password: "Password",
-        confirm: "Confirm Password",
-        signupBtn: "Create New Account",
-        success: "Your account has been created successfully, welcome to RACHEEL!"
-      }
-      // أضف باقي اللغات بنفس النمط
+    // إعدادات مشروعك من Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB4unMSA684UrqqSvS4xXHdKRc9MEcXps",
+      authDomain: "racheel.firebaseapp.com",
+      projectId: "racheel",
+      storageBucket: "racheel.firebasestorage.app",
+      messagingSenderId: "819433600751",
+      appId: "1:819433600751:web:2c6fc47c39cd18e76dcd1a",
+      measurementId: "G-B57B2TVF25"
     };
 
-    let userLang = navigator.language.slice(0,2);
-    if (!translations[userLang]) userLang = "en";
+    // تهيئة Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const analytics = firebase.analytics();
 
-    const t = translations[userLang];
-    document.getElementById("subtitle").textContent = t.subtitle;
-    document.getElementById("teaser1").textContent = t.teaser1;
-    document.getElementById("teaser2").textContent = t.teaser2;
-    document.getElementById("teaser3").textContent = t.teaser3;
-    document.getElementById("teaser4").textContent = t.teaser4;
-    document.getElementById("teaser5").textContent = t.teaser5;
-    document.getElementById("fullname").placeholder = t.fullname;
-    document.getElementById("email").placeholder = t.email;
-    document.getElementById("confirmEmail").placeholder = t.confirmEmail;
-    document.getElementById("password").placeholder = t.password;
-    document.getElementById("confirm").placeholder = t.confirm;
-    document.getElementById("signup-btn").textContent = t.signupBtn;
-
-    function showSuccessMessage(event) {
+    // تسجيل مستخدم جديد
+    function registerUser(event) {
       event.preventDefault();
-
       const email = document.getElementById("email").value;
       const confirmEmail = document.getElementById("confirmEmail").value;
       const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirm").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
       if (email !== confirmEmail) {
         alert("البريد الإلكتروني غير متطابق!");
-        return false;
+        return;
       }
-
       if (password !== confirmPassword) {
         alert("كلمة المرور غير متطابقة!");
-        return false;
+        return;
       }
 
-      document.getElementById("success-message").textContent = t.success;
-      document.getElementById("successModal").style.display = "flex";
-      return false;
-    }
-
-    function closeModal() {
-      document.getElementById("successModal").style.display = "none";
-      // إعادة التوجيه إلى صفحة تسجيل الدخول
-      window.location.href = "index.html";
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          userCredential.user.sendEmailVerification()
+            .then(() => {
+              alert("تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيد الحساب.");
+              window.location.href = "index.html"; // تحويل لصفحة تسجيل الدخول
+            });
+        })
+        .catch((error) => {
+          alert("خطأ: " + error.message);
+        });
     }
   </script>
 </body>
