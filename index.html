@@ -2,90 +2,144 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تسجيل الدخول - RACHEEL</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1A2A5A, #3D5FA8);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .logo {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+    h1 {
+      margin: 10px 0;
+    }
+    p {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      width: 95%;
+      padding: 12px;
+      background: #FFD700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #1A2A5A;
+    }
+    button:hover {
+      background: #FFC107;
+    }
+    a {
+      color: #FFD700;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <div class="left">
-      <img src="images/logo.jpeg" alt="شعار RACHEEL" class="logo">
-      <h1 id="title">RACHEEL</h1>
-      <p id="subtitle">YOUR PERMANENT EXHIBITION</p>
-      <div class="teasers">
-        <p id="teaser1"></p>
-        <p id="teaser2"></p>
-        <p id="teaser3"></p>
-        <p id="teaser4"></p>
-        <p id="teaser5"></p>
-      </div>
-    </div>
+    <img src="images/logo.jpeg" alt="شعار RACHEEL" class="logo">
+    <h1>RACHEEL</h1>
+    <p>مرحبًا بك من جديد – سجل دخولك وابدأ رحلتك</p>
 
-    <div class="right">
-      <form class="login-box">
-        <input type="text" id="email" placeholder="Email or Phone" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit" id="login-btn" class="login-btn">Log In</button>
-        <a href="#" id="forgot" class="forgot">Forgot password?</a>
-        <hr>
-        <button type="button" id="signup-btn" class="signup-btn" onclick="window.location.href='signup.html'">
-          Create New Account
-        </button>
-      </form>
-    </div>
+    <form onsubmit="loginUser(event)">
+      <input type="email" id="email" placeholder="البريد الإلكتروني" required><br>
+      <input type="password" id="password" placeholder="كلمة المرور" required><br>
+      <button type="submit">تسجيل الدخول</button>
+    </form>
+
+    <br>
+    <a href="#" onclick="resetPassword()">نسيت كلمة المرور؟</a><br><br>
+    <a href="signup.html">إنشاء حساب جديد</a>
   </div>
 
-  <footer>
-    <p>© 2026 RACHEEL - جميع الحقوق محفوظة</p>
-  </footer>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
 
-  <!-- سكربت داخلي -->
   <script>
-    const translations = {
-      ar: {
-        subtitle: "معرضك الدائم",
-        teaser1: "ابدأ رحلتك معنا اليوم، واجعل منتجاتك في معرض دائم يراها الجميع!",
-        teaser2: "RACHEEL… منصتك لتتحول أفكارك الصغيرة إلى نجاحات كبيرة.",
-        teaser3: "انضم الآن واكتشف كيف يمكن لمعرضك الرقمي أن يجذب عملاء من كل مكان.",
-        teaser4: "مع RACHEEL، كل ورشة لها صوت، وكل منتج له جمهور.",
-        teaser5: "لا تدع إبداعك يضيع… شاركه مع العالم عبر معرضك الدائم.",
-        email: "البريد الإلكتروني أو رقم الهاتف",
-        password: "كلمة المرور",
-        loginBtn: "تسجيل الدخول",
-        forgot: "هل نسيت كلمة المرور؟",
-        signupBtn: "إنشاء حساب جديد"
-      },
-      en: {
-        subtitle: "YOUR PERMANENT EXHIBITION",
-        teaser1: "Start your journey today and showcase your products permanently!",
-        teaser2: "RACHEEL… your platform to turn small ideas into big successes.",
-        teaser3: "Join now and discover how your digital exhibition can attract customers everywhere.",
-        teaser4: "With RACHEEL, every workshop has a voice, every product has an audience.",
-        teaser5: "Don’t let your creativity fade… share it with the world.",
-        email: "Email or Phone",
-        password: "Password",
-        loginBtn: "Log In",
-        forgot: "Forgot password?",
-        signupBtn: "Create New Account"
-      }
-      // أضف باقي اللغات بنفس النمط
+    // إعدادات مشروعك من Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAB4unMSA684UrqqSvS4xXHdKRc9MEcXps",
+      authDomain: "racheel.firebaseapp.com",
+      projectId: "racheel",
+      storageBucket: "racheel.firebasestorage.app",
+      messagingSenderId: "819433600751",
+      appId: "1:819433600751:web:2c6fc47c39cd18e76dcd1a",
+      measurementId: "G-B57B2TVF25"
     };
 
-    let userLang = navigator.language.slice(0,2);
-    if (!translations[userLang]) userLang = "en";
+    // تهيئة Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const analytics = firebase.analytics();
 
-    const t = translations[userLang];
-    document.getElementById("subtitle").textContent = t.subtitle;
-    document.getElementById("teaser1").textContent = t.teaser1;
-    document.getElementById("teaser2").textContent = t.teaser2;
-    document.getElementById("teaser3").textContent = t.teaser3;
-    document.getElementById("teaser4").textContent = t.teaser4;
-    document.getElementById("teaser5").textContent = t.teaser5;
-    document.getElementById("email").placeholder = t.email;
-    document.getElementById("password").placeholder = t.password;
-    document.getElementById("login-btn").textContent = t.loginBtn;
-    document.getElementById("forgot").textContent = t.forgot;
-    document.getElementById("signup-btn").textContent = t.signupBtn;
+    // تسجيل الدخول
+    function loginUser(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          if (userCredential.user.emailVerified) {
+            alert("تم تسجيل الدخول بنجاح!");
+            window.location.href = "home.html"; // تحويل للصفحة الرئيسية
+          } else {
+            alert("يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.");
+          }
+        })
+        .catch((error) => {
+          alert("خطأ: " + error.message);
+        });
+    }
+
+    // استعادة كلمة المرور
+    function resetPassword() {
+      const email = document.getElementById("email").value;
+      if (!email) {
+        alert("من فضلك أدخل بريدك الإلكتروني أولاً.");
+        return;
+      }
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.");
+        })
+        .catch((error) => {
+          alert("خطأ: " + error.message);
+        });
+    }
   </script>
 </body>
 </html>
